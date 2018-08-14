@@ -55,6 +55,10 @@ BlogsampleApplicationTests tests if the application configuration is starting wi
 ```
 
 ### Testing with Postman
+Postman requests
+```
+https://www.getpostman.com/collections/38171f0a7efa715405a7
+```
 
 
 ## Built With
