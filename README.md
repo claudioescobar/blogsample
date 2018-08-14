@@ -32,7 +32,7 @@ mvn clean install
 Database Layer Tests
 ```
 Identified as *RepositoryTest, just to test if the repositories are configurated and working well.
-These tests were created using @JPAData..
+These tests were created using @DataJpaTest
 ```
 
 Service Layer Tests
@@ -96,8 +96,6 @@ mvn sonar:sonar -Dsonar.host.url=http://192.168.99.100:9000
 
 ## TODO
 
-- create postman collection tests
-
 - javadoc
 
 - api documentation with swagger or other tool
@@ -110,3 +108,10 @@ mvn sonar:sonar -Dsonar.host.url=http://192.168.99.100:9000
 
 - configure jacoco for sonarqube code coverage
 
+- add auto discovery with eureka
+
+- add security
+
+- add liquibase
+
+- better logging
