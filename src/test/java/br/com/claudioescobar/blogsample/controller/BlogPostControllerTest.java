@@ -5,10 +5,17 @@ import br.com.claudioescobar.blogsample.service.BlogPostService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.restdocs.RestDocsMockMvcConfigurationCustomizer;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
+import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -16,19 +23,22 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.Arrays;
 import java.util.List;
 
-import static br.com.claudioescobar.blogsample.TestDataHandler.BLOG_POST_DATA1_BUILDER;
-import static br.com.claudioescobar.blogsample.TestDataHandler.BLOG_POST_DATA2_BUILDER;
+import static br.com.claudioescobar.blogsample.TestDataHandler.blogData1;
+import static br.com.claudioescobar.blogsample.TestDataHandler.blogData2;
 import static br.com.claudioescobar.blogsample.TestUtil.formatLocalDateTime;
 import static br.com.claudioescobar.blogsample.TestUtil.toJson;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(BlogPostController.class)
+@AutoConfigureRestDocs(outputDir = "target/snippets")
 public class BlogPostControllerTest {
 
     private static final long BLOG_POST_ID_1 = 1L;
@@ -41,10 +51,26 @@ public class BlogPostControllerTest {
     @MockBean
     private BlogPostService service;
 
+    @TestConfiguration
+    static class CustomizationConfiguration implements RestDocsMockMvcConfigurationCustomizer {
+
+        @Override
+        public void customize(MockMvcRestDocumentationConfigurer configurer) {
+            configurer.operationPreprocessors()
+                    .withRequestDefaults(prettyPrint())
+                    .withResponseDefaults(prettyPrint());
+        }
+
+        @Bean
+        public RestDocumentationResultHandler restDocumentation() {
+            return MockMvcRestDocumentation.document("{method-name}");
+        }
+    }
+
     @Test
     public void whenFindAllBlogPosts_thenReturnAllBlogPosts() throws Exception {
-        BlogPost blogPost1 = BLOG_POST_DATA1_BUILDER.id(BLOG_POST_ID_1).build();
-        BlogPost blogPost2 = BLOG_POST_DATA2_BUILDER.id(BLOG_POST_ID_2).build();
+        BlogPost blogPost1 = blogData1().id(BLOG_POST_ID_1).build();
+        BlogPost blogPost2 = blogData2().id(BLOG_POST_ID_2).build();
         List<BlogPost> blogPosts = Arrays.asList(blogPost1, blogPost2);
 
         given(service.findAll()).willReturn(blogPosts);
@@ -52,6 +78,7 @@ public class BlogPostControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/api/blog_posts")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andDo(document("blog_posts"))
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(blogPost1.getId().intValue())))
                 .andExpect(jsonPath("$[0].title", is(blogPost1.getTitle())))
@@ -68,8 +95,8 @@ public class BlogPostControllerTest {
 
     @Test
     public void givenTheBlogPost_whenSave_thenReturnTheBlogPost() throws Exception {
-        BlogPost savedBlogPost = BLOG_POST_DATA1_BUILDER.id(BLOG_POST_ID_1).build();
-        BlogPost blogPostToSave = BLOG_POST_DATA1_BUILDER.build();
+        BlogPost savedBlogPost = blogData1().id(BLOG_POST_ID_1).build();
+        BlogPost blogPostToSave = blogData1().build();
 
         given(service.save(blogPostToSave)).willReturn(savedBlogPost);
 
@@ -88,13 +115,13 @@ public class BlogPostControllerTest {
 
     @Test
     public void givenTheBlogPostAndAnExistentId_whenUpdate_thenReturnTheBlogPost() throws Exception {
-        BlogPost blogPost = BLOG_POST_DATA1_BUILDER.id(BLOG_POST_ID_1).build();
+        BlogPost blogPost = blogData1().id(BLOG_POST_ID_1).build();
 
         given(service.update(blogPost)).willReturn(blogPost);
 
         mvc.perform(MockMvcRequestBuilders.put("/api/blog_posts/" + BLOG_POST_ID_1)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(BLOG_POST_DATA1_BUILDER.build())))
+                .content(toJson(blogData1().build())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(blogPost.getId().intValue())))
                 .andExpect(jsonPath("$.title", is(blogPost.getTitle())))
@@ -107,13 +134,13 @@ public class BlogPostControllerTest {
 
 //    @Test
 //    public void givenTheBlogPostAndAnNonExistentId_whenUpdate_thenShouldReturnA404NotFound() throws Exception {
-//        BlogPost blogPost = BLOG_POST_DATA1_BUILDER.id(BLOG_POST_UNEXISTENT_ID).build();
+//        BlogPost blogPost = blogData1().id(BLOG_POST_UNEXISTENT_ID).build();
 //
 //        given(service.update(blogPost)).willReturn(blogPost);
 //
 //        mvc.perform(MockMvcRequestBuilders.put("/api/blog_posts/" + BLOG_POST_UNEXISTENT_ID)
 //                .contentType(MediaType.APPLICATION_JSON)
-//                .content(toJson(BLOG_POST_DATA1_BUILDER.build())))
+//                .content(toJson(blogData1().build())))
 //                .andExpect(status().isNotFound());
 //
 //        verify(service, times(1)).update(blogPost);
@@ -124,7 +151,7 @@ public class BlogPostControllerTest {
     public void givenTheBlogPostId_whenDelete_thenReturnTheStatus200() throws Exception {
         mvc.perform(MockMvcRequestBuilders.delete("/api/blog_posts/" + BLOG_POST_ID_1)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(BLOG_POST_DATA1_BUILDER.build())))
+                .content(toJson(blogData1().build())))
                 .andExpect(status().isOk());
 
         verify(service, times(1)).delete(BLOG_POST_ID_1);
@@ -137,7 +164,7 @@ public class BlogPostControllerTest {
 
         mvc.perform(MockMvcRequestBuilders.delete("/api/blog_posts/" + BLOG_POST_ID_1)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(BLOG_POST_DATA1_BUILDER.build())))
+                .content(toJson(blogData1().build())))
                 .andExpect(status().isNotFound());
 
         verify(service, times(1)).delete(BLOG_POST_ID_1);

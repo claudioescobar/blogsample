@@ -55,11 +55,17 @@ BlogsampleApplicationTests tests if the application configuration is starting wi
 ```
 
 ### Testing with Postman
-Postman requests
+Shared Postman requests with some test cases
 ```
 https://www.getpostman.com/collections/38171f0a7efa715405a7
 ```
 
+Or just import the swagger URL after the server is installed(always on the last version)
+```
+http://localhost:8080/v2/api-docs
+```
+## API
+Access all API REST services catalog on http://localhost:8080/swagger-ui.html after installing application.
 
 ## Built With
 
@@ -96,13 +102,7 @@ mvn sonar:sonar -Dsonar.host.url=http://192.168.99.100:9000
 
 ## TODO
 
-- javadoc
-
-- api documentation with swagger or other tool
-
 - beans validation
-
-- put layers into maven modules
 
 - hateos
 
@@ -115,3 +115,5 @@ mvn sonar:sonar -Dsonar.host.url=http://192.168.99.100:9000
 - add liquibase
 
 - better logging
+
+- put layers into maven modules
