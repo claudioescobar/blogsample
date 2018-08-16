@@ -1,7 +1,6 @@
 package br.com.claudioescobar.blogsample.repository;
 
 import br.com.claudioescobar.blogsample.domain.BlogPost;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +13,12 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static br.com.claudioescobar.blogsample.TestDataHandler.BLOG_POST_DATA1_BUILDER;
-import static br.com.claudioescobar.blogsample.TestDataHandler.BLOG_POST_DATA2_BUILDER;
+import static br.com.claudioescobar.blogsample.TestDataHandler.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@Ignore("NEED TO FIX DETACHED ENTITY EXCEPTION FOR TEST DATA")
 public class BlogPostRepositoryTest {
 
     private static final long NON_EXISTENT_BLOG_POST_ID = 100L;
@@ -37,9 +34,9 @@ public class BlogPostRepositoryTest {
 
     @Test
     public void givenTwoBlogPosts_whenFindAll_shouldBringTheTwoBlogPosts() {
-        BlogPost blogPost1 = entityManager.persist(BLOG_POST_DATA1_BUILDER.build());
-        BlogPost blogPost2 = entityManager.persist(BLOG_POST_DATA2_BUILDER.build());
-        entityManager.flush();
+        BlogPost blogPost1 = entityManager.persistFlushFind(blogData1().build());
+        BlogPost blogPost2 = entityManager.persistFlushFind(blogData2().build());
+//        entityManager.flush();
 
         List<BlogPost> expectedBlogPosts = Arrays.asList(blogPost1, blogPost2);
 
@@ -56,10 +53,10 @@ public class BlogPostRepositoryTest {
 
     @Test
     public void givenANotPersistedBlogPost_whenSave_shouldPersistTheBlogPost() {
-        BlogPost result = repository.save(BLOG_POST_DATA1_BUILDER.build());
+        BlogPost result = repository.save(blogData1().build());
 
         BlogPost savedBlogPost = entityManager.find(BlogPost.class, result.getId());
-        BlogPost expectedBlogPost = BLOG_POST_DATA1_BUILDER.build();
+        BlogPost expectedBlogPost = blogData1().build();
 
         assertThat(result, equalTo(savedBlogPost));
         expectedBlogPost.setId(savedBlogPost.getId());
@@ -89,7 +86,7 @@ public class BlogPostRepositoryTest {
 
     @Test
     public void givenAnExistentId_whenDeleteById_shouldDeleteWithSuccess() {
-        BlogPost blogPostToDelete = entityManager.persist(BLOG_POST_DATA1_BUILDER.build());
+        BlogPost blogPostToDelete = entityManager.persist(blogData1().build());
         repository.deleteById(blogPostToDelete.getId());
 
         BlogPost deletedBlogPost = entityManager.find(BlogPost.class, blogPostToDelete.getId());

@@ -17,8 +17,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Optional;
 
-import static br.com.claudioescobar.blogsample.TestDataHandler.BLOG_POST_DATA1_BUILDER;
-import static br.com.claudioescobar.blogsample.TestDataHandler.BLOG_POST_DATA2_BUILDER;
+import static br.com.claudioescobar.blogsample.TestDataHandler.blogData1;
+import static br.com.claudioescobar.blogsample.TestDataHandler.blogData2;
 import static br.com.claudioescobar.blogsample.TestUtil.formatLocalDateTime;
 import static br.com.claudioescobar.blogsample.TestUtil.toJson;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -50,8 +50,8 @@ public class BlogPostControllerIntegrationTest {
 
     @Test
     public void whenFindAllBlogPosts_thenReturnAllBlogPosts() throws Exception {
-        BlogPost blogPost1 = repository.save(BLOG_POST_DATA1_BUILDER.build());
-        BlogPost blogPost2 = repository.save(BLOG_POST_DATA2_BUILDER.build());
+        BlogPost blogPost1 = repository.save(blogData1().build());
+        BlogPost blogPost2 = repository.save(blogData2().build());
 
         mvc.perform(MockMvcRequestBuilders.get("/api/blog_posts")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -69,11 +69,11 @@ public class BlogPostControllerIntegrationTest {
 
     @Test
     public void givenTheBlogPost_whenSave_thenReturnTheBlogPost() throws Exception {
-        BlogPost blogPost = BLOG_POST_DATA1_BUILDER.build();
+        BlogPost blogPost = blogData1().build();
 
         mvc.perform(MockMvcRequestBuilders.post("/api/blog_posts")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(BLOG_POST_DATA1_BUILDER.build())))
+                .content(toJson(blogData1().build())))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.title", is(blogPost.getTitle())))
@@ -83,9 +83,9 @@ public class BlogPostControllerIntegrationTest {
 
     @Test
     public void givenTheBlogPostAndAnExistentId_whenUpdate_thenReturnTheBlogPost() throws Exception {
-        BlogPost savedBlogPost = repository.save(BLOG_POST_DATA1_BUILDER.build());
-        BlogPost blogPostToSave = BLOG_POST_DATA2_BUILDER.build();
-        BlogPost updatedBlogPostToSave = BLOG_POST_DATA2_BUILDER.id(savedBlogPost.getId()).build();
+        BlogPost savedBlogPost = repository.save(blogData1().build());
+        BlogPost blogPostToSave = blogData2().build();
+        BlogPost updatedBlogPostToSave = blogData2().id(savedBlogPost.getId()).build();
 
         mvc.perform(MockMvcRequestBuilders.put("/api/blog_posts/" + savedBlogPost.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -101,13 +101,13 @@ public class BlogPostControllerIntegrationTest {
 
 //    @Test
 //    public void givenTheBlogPostAndAnNonExistentId_whenUpdate_thenShouldReturnA404NotFound() throws Exception {
-//        BlogPost blogPost = BLOG_POST_DATA1_BUILDER.id(BLOG_POST_UNEXISTENT_ID).build();
+//        BlogPost blogPost = blogData1().id(BLOG_POST_UNEXISTENT_ID).build();
 //
 //        given(service.update(blogPost)).willReturn(blogPost);
 //
 //        mvc.perform(MockMvcRequestBuilders.put("/api/blog_posts/" + BLOG_POST_UNEXISTENT_ID)
 //                .contentType(MediaType.APPLICATION_JSON)
-//                .content(toJson(BLOG_POST_DATA1_BUILDER.build())))
+//                .content(toJson(blogData1().build())))
 //                .andExpect(status().isNotFound());
 //
 //        verify(service, times(1)).update(blogPost);
@@ -116,11 +116,11 @@ public class BlogPostControllerIntegrationTest {
 
     @Test
     public void givenTheBlogPostId_whenDelete_thenReturnTheStatus200() throws Exception {
-        BlogPost savedBlogPost = repository.save(BLOG_POST_DATA1_BUILDER.build());
+        BlogPost savedBlogPost = repository.save(blogData1().build());
 
         mvc.perform(MockMvcRequestBuilders.delete("/api/blog_posts/" + savedBlogPost.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(BLOG_POST_DATA1_BUILDER.build())))
+                .content(toJson(blogData1().build())))
                 .andExpect(status().isOk());
 
         assertThat(repository.findById(savedBlogPost.getId()), equalTo(Optional.ofNullable(null)));
@@ -130,7 +130,7 @@ public class BlogPostControllerIntegrationTest {
     public void givenNonExistentBlogPostId_whenDelete_thenReturnTheStatus404() throws Exception {
         mvc.perform(MockMvcRequestBuilders.delete("/api/blog_posts/" + BLOG_POST_UNEXISTENT_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(BLOG_POST_DATA1_BUILDER.build())))
+                .content(toJson(blogData1().build())))
                 .andExpect(status().isNotFound());
     }
 

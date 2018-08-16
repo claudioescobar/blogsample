@@ -13,8 +13,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Arrays;
 import java.util.List;
 
-import static br.com.claudioescobar.blogsample.TestDataHandler.BLOG_POST_DATA1_BUILDER;
-import static br.com.claudioescobar.blogsample.TestDataHandler.BLOG_POST_DATA2_BUILDER;
+import static br.com.claudioescobar.blogsample.TestDataHandler.blogData1;
+import static br.com.claudioescobar.blogsample.TestDataHandler.blogData2;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -39,7 +39,7 @@ public class BlogPostServiceImplTest {
 
     @Test
     public void shouldFindAll() {
-        List<BlogPost> expectedBlogPosts = Arrays.asList(BLOG_POST_DATA1_BUILDER.build(), BLOG_POST_DATA2_BUILDER.build());
+        List<BlogPost> expectedBlogPosts = Arrays.asList(blogData1().build(), blogData2().build());
         when(blogPostRepository.findAll()).thenReturn(expectedBlogPosts);
 
         List<BlogPost> result = blogPostService.findAll();
@@ -49,8 +49,8 @@ public class BlogPostServiceImplTest {
 
     @Test
     public void shouldSave() {
-        BlogPost blogPostToSave = BLOG_POST_DATA1_BUILDER.build();
-        BlogPost expectedBlogPost = BLOG_POST_DATA1_BUILDER.id(1L).build();
+        BlogPost blogPostToSave = blogData1().build();
+        BlogPost expectedBlogPost = blogData1().id(1L).build();
         when(blogPostRepository.save(blogPostToSave)).thenReturn(expectedBlogPost);
 
         BlogPost result = blogPostService.save(blogPostToSave);
@@ -60,8 +60,8 @@ public class BlogPostServiceImplTest {
 
     @Test
     public void shouldUpdate() {
-        BlogPost blogPostToUpdate = BLOG_POST_DATA1_BUILDER.id(1L).build();
-        BlogPost expectedBlogPost = BLOG_POST_DATA1_BUILDER.id(1L).build();
+        BlogPost blogPostToUpdate = blogData1().id(1L).build();
+        BlogPost expectedBlogPost = blogData1().id(1L).build();
         when(blogPostRepository.save(blogPostToUpdate)).thenReturn(expectedBlogPost);
 
         BlogPost result = blogPostService.update(blogPostToUpdate);
@@ -71,8 +71,8 @@ public class BlogPostServiceImplTest {
 
     @Test
     public void shouldDeleteById() {
-        BlogPost blogPostToUpdate = BLOG_POST_DATA1_BUILDER.id(1L).build();
-        BlogPost expectedBlogPost = BLOG_POST_DATA1_BUILDER.id(1L).build();
+        BlogPost blogPostToUpdate = blogData1().id(1L).build();
+        BlogPost expectedBlogPost = blogData1().id(1L).build();
         when(blogPostRepository.save(blogPostToUpdate)).thenReturn(expectedBlogPost);
 
         BlogPost result = blogPostService.update(blogPostToUpdate);
